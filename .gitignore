@@ -1,0 +1,12 @@
+build/
+cmake-build-*/
+*.o
+*.obj
+*.a
+*.lib
+*.elf
+*.map
+*.bin
+*.hex
+*.exe
+*.pdb

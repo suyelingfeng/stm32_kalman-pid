@@ -1,9 +1,19 @@
-#ifndef __RING_BUFFER_H
-#define __RING_BUFFER_H
+#ifndef RING_BUFFER_H
+#define RING_BUFFER_H
 
-#include "stm32f1xx_hal.h"
+#include <stdint.h>
 
-#define RING_BUFFER_SIZE 256  // 可根据需要调整大小
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef RING_BUFFER_SIZE
+#define RING_BUFFER_SIZE 256U
+#endif
+
+#if (RING_BUFFER_SIZE == 0U) || (RING_BUFFER_SIZE > 65535U)
+#error "RING_BUFFER_SIZE must be in the range 1..65535"
+#endif
 
 typedef struct {
     uint8_t buffer[RING_BUFFER_SIZE];
@@ -12,18 +22,19 @@ typedef struct {
     uint16_t count;
 } RingBuffer;
 
-// 基础操作接口
 void RingBuffer_Init(RingBuffer *rb);
-uint8_t RingBuffer_IsEmpty(RingBuffer *rb);
-uint8_t RingBuffer_IsFull(RingBuffer *rb);
+uint8_t RingBuffer_IsEmpty(const RingBuffer *rb);
+uint8_t RingBuffer_IsFull(const RingBuffer *rb);
 uint8_t RingBuffer_Put(RingBuffer *rb, uint8_t data);
 uint8_t RingBuffer_Get(RingBuffer *rb, uint8_t *data);
 void RingBuffer_Flush(RingBuffer *rb);
-
-// 高级封装接口
-uint16_t RingBuffer_GetFreeSpace(RingBuffer *rb);
-uint16_t RingBuffer_GetUsedSpace(RingBuffer *rb);
-uint16_t RingBuffer_Write(RingBuffer *rb, uint8_t *data, uint16_t len);
+uint16_t RingBuffer_GetFreeSpace(const RingBuffer *rb);
+uint16_t RingBuffer_GetUsedSpace(const RingBuffer *rb);
+uint16_t RingBuffer_Write(RingBuffer *rb, const uint8_t *data, uint16_t len);
 uint16_t RingBuffer_Read(RingBuffer *rb, uint8_t *data, uint16_t len);
 
-#endif /* __RING_BUFFER_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* RING_BUFFER_H */
