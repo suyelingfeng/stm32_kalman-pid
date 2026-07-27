@@ -44,6 +44,7 @@ float HysteresisController_Update(HysteresisController *controller,
         return 0.0f;
     }
 
+    /* 回差带内保持原状态，避免噪声导致执行器频繁切换。 */
     if (controller->high_active != 0U) {
         if (measurement >= controller->setpoint + controller->half_band) {
             controller->high_active = 0U;
@@ -92,6 +93,7 @@ float StateFeedback2_Update(StateFeedback2Controller *controller,
         return 0.0f;
     }
 
+    /* 二状态反馈律：u = Kr*r - K1*x1 - K2*x2。 */
     controller->output =
         controller->reference_gain * reference -
         controller->k1 * state1 -
@@ -148,6 +150,10 @@ float FirstOrderLadrc_Update(FirstOrderLadrc *controller,
         return controller->output;
     }
 
+    /*
+     * 线性 ESO 极点配置在 -observer_bandwidth，得到
+     * beta1 = 2*w0、beta2 = w0^2。
+     */
     observer_error = controller->z1 - measurement;
     beta1 = 2.0f * controller->observer_bandwidth;
     beta2 = controller->observer_bandwidth *
@@ -159,6 +165,7 @@ float FirstOrderLadrc_Update(FirstOrderLadrc *controller,
     controller->z1 += z1_rate * dt_seconds;
     controller->z2 += z2_rate * dt_seconds;
 
+    /* z2 是总扰动估计；在除以 b0 前直接从虚拟控制量中补偿。 */
     virtual_output =
         controller->controller_bandwidth * (reference - controller->z1) -
         controller->z2;

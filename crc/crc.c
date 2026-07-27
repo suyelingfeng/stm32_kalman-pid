@@ -10,6 +10,7 @@ uint8_t CRC8_Calculate(const uint8_t *data, size_t length)
         return 0U;
     }
 
+    /* 无查表逐位实现：节省 Flash，适合短报文和低频调用。 */
     for (index = 0U; index < length; ++index) {
         crc ^= data[index];
         for (bit = 0U; bit < 8U; ++bit) {
@@ -33,6 +34,7 @@ uint16_t CRC16_Modbus(const uint8_t *data, size_t length)
         return 0U;
     }
 
+    /* Modbus CRC 按最低有效位优先处理，发送时通常低字节在前。 */
     for (index = 0U; index < length; ++index) {
         crc ^= (uint16_t)data[index];
         for (bit = 0U; bit < 8U; ++bit) {

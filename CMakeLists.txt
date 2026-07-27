@@ -27,12 +27,17 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(stm32_algorithms PRIVATE
         -Wall -Wextra -Wpedantic -Wconversion
     )
+elseif(MSVC)
+    target_compile_options(stm32_algorithms PRIVATE /utf-8 /W4)
 endif()
 
 include(CTest)
 if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
     add_executable(algorithm_tests tests/test_algorithms.c)
     target_link_libraries(algorithm_tests PRIVATE stm32_algorithms)
+    if(MSVC)
+        target_compile_options(algorithm_tests PRIVATE /utf-8 /W4)
+    endif()
     if(UNIX)
         target_link_libraries(algorithm_tests PRIVATE m)
     endif()

@@ -43,6 +43,7 @@ float PID_Position_Calc(PID_Controller *pid, float set, float fdb)
     pid->set = set;
     pid->fdb = fdb;
     err = set - fdb;
+    /* 位置式 PID：积分项单独限幅，减轻积分饱和。 */
     pid->Pout = pid->Kp * err;
     pid->Iout = PID_Clamp(pid->Iout + pid->Ki * err, pid->max_iout);
     pid->Dout = pid->Kd * (err - pid->last_err);
@@ -63,6 +64,7 @@ float PID_Increment_Calc(PID_Controller *pid, float set, float fdb)
     pid->set = set;
     pid->fdb = fdb;
     err = set - fdb;
+    /* 增量式 PID 使用最近三次误差计算本周期输出增量。 */
     pid->Pout = pid->Kp * (err - pid->last_err);
     pid->Iout = pid->Ki * err;
     pid->Dout = pid->Kd *
@@ -79,6 +81,7 @@ float PID_Calc(PID_Controller *pid, float set, float fdb)
     if (pid == NULL) {
         return 0.0f;
     }
+    /* 统一入口始终返回最终输出，而非增量式的原始增量。 */
     if (pid->mode == PID_INCREMENT) {
         (void)PID_Increment_Calc(pid, set, fdb);
         return pid->out;

@@ -36,6 +36,7 @@ float EmaFilter_Update(EmaFilter *filter, float input)
         return input;
     }
 
+    /* EMA: alpha 越小越平滑，越大越快跟随新样本。 */
     filter->output += filter->alpha * (input - filter->output);
     return filter->output;
 }
@@ -72,6 +73,7 @@ float MovingAverage_Update(MovingAverageFilter *filter, float input)
         return input;
     }
 
+    /* 窗口填满后，用新样本替换最旧样本并修正累计和。 */
     if (filter->count == filter->window_size) {
         filter->sum -= filter->buffer[filter->index];
     } else {
@@ -99,6 +101,7 @@ void MovingAverage_Reset(MovingAverageFilter *filter)
     filter->count = 0U;
 }
 
+/* 固定三次比较即可得到中值，避免通用排序的额外开销。 */
 float Median3_Filter(float first, float second, float third)
 {
     float temporary;

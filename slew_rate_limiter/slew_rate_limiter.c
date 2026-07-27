@@ -36,6 +36,7 @@ float SlewRateLimiter_Update(SlewRateLimiter *limiter,
         return limiter->output;
     }
 
+    /* 将“每秒变化率”换算成本周期允许的最大变化量。 */
     delta = target - limiter->output;
     maximum_rise = limiter->rise_rate * dt_seconds;
     maximum_fall = limiter->fall_rate * dt_seconds;

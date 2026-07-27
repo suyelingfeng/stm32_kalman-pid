@@ -39,6 +39,7 @@ float ComplementaryFilter_Update(ComplementaryFilter *filter,
         dt_seconds = 0.0f;
     }
 
+    /* 高频部分来自角速度积分，低频部分由参考角校正漂移。 */
     predicted_angle = filter->angle + gyro_rate * dt_seconds;
     filter->angle = filter->alpha * predicted_angle +
                     (1.0f - filter->alpha) * reference_angle;

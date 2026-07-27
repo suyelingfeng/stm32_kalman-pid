@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 
+/* 条件回绕避免取模运算，也支持非 2 的幂容量。 */
 static uint16_t RingBuffer_NextIndex(uint16_t index)
 {
     ++index;
@@ -78,6 +79,7 @@ uint16_t RingBuffer_Write(RingBuffer *rb, const uint8_t *data, uint16_t len)
     if ((rb == NULL) || (data == NULL)) {
         return 0U;
     }
+    /* 批量路径直接更新状态，避免逐字节函数调用开销。 */
     while ((written < len) && (rb->count < (uint16_t)RING_BUFFER_SIZE)) {
         rb->buffer[rb->head] = data[written];
         rb->head = RingBuffer_NextIndex(rb->head);
@@ -93,6 +95,7 @@ uint16_t RingBuffer_Read(RingBuffer *rb, uint8_t *data, uint16_t len)
     if ((rb == NULL) || (data == NULL)) {
         return 0U;
     }
+    /* 数据不足时短读，返回值告诉调用方实际取得的字节数。 */
     while ((read < len) && (rb->count > 0U)) {
         data[read] = rb->buffer[rb->tail];
         rb->tail = RingBuffer_NextIndex(rb->tail);

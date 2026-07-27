@@ -29,6 +29,7 @@ float Kalman_Filter(KalmanFilter *kf, float z)
     if (kf == NULL) {
         return 0.0f;
     }
+    /* 预测：x(k|k-1)=A*x，P(k|k-1)=A*P*A+Q。 */
     kf->x = kf->A * kf->x;
     predicted_p = kf->A * kf->P * kf->A + kf->Q;
     predicted_p = Kalman_NonNegative(predicted_p);
@@ -39,6 +40,7 @@ float Kalman_Filter(KalmanFilter *kf, float z)
         kf->P = predicted_p;
         return kf->x;
     }
+    /* 更新：用测量残差修正状态估计。 */
     kf->K = predicted_p * kf->H / innovation_covariance;
     kf->x += kf->K * (z - kf->H * kf->x);
     /* Joseph form keeps covariance non-negative under float rounding. */
